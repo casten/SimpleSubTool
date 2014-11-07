@@ -32,24 +32,38 @@ def stepRegistersAsNeeded(x,y,z,maj):
 def getBit(x,y,z):
 	return x[18]^y[21]^z[22]
 
-
-def main():
+def nextBit(x,y,z):
+	maj = getMajority(x,y,z)
+	stepRegistersAsNeeded(x,y,z,maj)
+	return getBit(x,y,z)
+	
+def homeworkProblem():
 	x = bitarray('1010101010101010101')
 	y = bitarray('1100110011001100110011')
 	z = bitarray('11100001111000011110000')
 	cs = bitarray(32)
 	for i in range (0,32):
-		maj = getMajority(x,y,z)
-		stepRegistersAsNeeded(x,y,z,maj)
-		cs[i] = getBit(x,y,z)
+		cs[i] = nextBit(x,y,z)
 	print 'cs = '+str(cs)
 	print 'x = '+str(x)
 	print 'y = '+str(y)
 	print 'z = '+str(z)
 
+def drawImage():
+		import Image, ImageDraw
+		xA = bitarray('1010101010101010101')
+		yA = bitarray('1100110011001100110011')
+		zA = bitarray('11100001111000011110000')
+		im = Image.new("1", (1024,1024))
+		for x in range(0,1024):
+			for y in range (0,1024):
+				im.putpixel((x,y),nextBit(xA,yA,zA))
+
+		# write to stdout
+		im.save("out.png", "PNG")
+
+def main():
+	drawImage()
+	
 if __name__ == "__main__":
     main()
-
-
-
-
