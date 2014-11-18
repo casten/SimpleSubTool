@@ -1,3 +1,9 @@
+import base64
+from array import array
+
+
+from duplicity.log import OutFilter
+import binascii
 class obj(object):
     def __init__(self, d):
         for a, b in d.items():
@@ -13,28 +19,21 @@ def swap(ary,a,b):
 
 def InitRC4(key):
 	S = [None]*256
-	K = [None]*256
 	N = len(key)
 	for i in range(0,256):
 		S[i] = i
-		K[i] = key[i%N]
 	j=0
 	for i in range(0,256):
-		j=(j+S[i] + K[i])% 256
+		j=(j+S[i] + key[i%N])% 256
 		swap(S,i,j)
-	return obj({'S':S,'i':i,'j':j})
+	return obj({'S':S,'i':0,'j':0})
 
-def getNextByte(rc4State):
-	S = rc4State.S
-	i = rc4State.i
-	j = rc4State.j
-	i = (i+1)%256
-	j = (j+S[i])%256
-	swap(S,i,j)
-	t = (S[i]+S[j])%256
-	rc4State.i = i
-	rc4State.j = j
-	return S[t]
+def getNextByte(rc):
+	rc.i = (rc.i+1)%256
+	rc.j = (rc.j+rc.S[rc.i])%256
+	swap(rc.S,rc.i,rc.j)
+	t = (rc.S[rc.i]+rc.S[rc.j])%256
+	return rc.S[t]
 
 def printState(rcState):
 	print "RC4 permutation table:"
@@ -77,12 +76,37 @@ def drawImage():
 	# write to stdout
 	im.save("3.6.9.png", "PNG")
 
+def printByteList(bl):
+#	ary = array('B',bl)
+	b64 = [];
+	for i in range(0,len(bl)):
+		b64.append(hex(bl[i]))
+	#b64 = base64.b64encode(ary)
+	print b64;
+	
+
+def testEncrypt(plaintext,key):
+	pt = bytearray(plaintext)
+	out = []
+	ks = []
+	rc4State = InitRC4(bytearray(key))
+	for i in range(0,len(pt)):
+		keyStreamChar = getNextByte(rc4State)
+		ks.append(keyStreamChar) 
+		out.append((pt[i] ^ keyStreamChar))
+		
+	printByteList(ks)
+	return out
+
 def main():
 	rc4State = InitRC4([0x1a,0x2b,0x3c,0x4d,0x5e,0x6f,0x77])
 	NineA(rc4State)
 	NineB(rc4State)
 	NineC(rc4State)
-	drawImage()
-	
+	#drawImage()
+
+	out = testEncrypt('Attack at dawn','Secret')
+	printByteList(out)
+    
 if __name__ == "__main__":
     main()
