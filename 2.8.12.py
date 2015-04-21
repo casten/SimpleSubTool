@@ -41,8 +41,7 @@ def main():
             stdscr.move(0,0)
             stdscr.refresh()
             curses.endwin()
-            uninitCurses(stdscr)
-            print("Please resize terminal to a minimum 68,226\n")
+            uninitCurses(stdscr,True)
             stdscr.move(1,0) 
             sys.exit(-1)
         glob['englishInfo']['dictionary'] = makeDict()
@@ -64,13 +63,18 @@ def initCurses():
     stdscr.keypad(1)
     return stdscr
 
-def uninitCurses(scr):
-    scr.keypad(0)
-    curses.nocbreak()
-    curses.echo(True)
-    scr.move(66,0) #move to key window
-    scr.refresh()
-#    curses.endwin()
+def uninitCurses(scr,err):
+    try:
+        scr.keypad(0)
+        curses.nocbreak()
+        curses.echo(True)
+        scr.move(66,0) #move to key window
+        scr.refresh()
+        curses.endwin()
+    except:
+        if (err):
+           print("Please resize terminal to a minimum 68,226\n")
+#
 
 def debug(str):
 #    glob['windows']['debugWin'].clear()
